@@ -1,4 +1,3 @@
-Here is the full code. Copy everything in the box and paste it into index.html in step 3.
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -42,8 +41,12 @@ input{flex:1;min-width:0;font:inherit;padding:12px;border-radius:10px;border:1px
 .empty{padding:14px;color:var(--mute)}
 .foot{margin-top:24px;text-align:center}
 .link{background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;cursor:pointer}
-</style></head>
+.auth{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}.auth[hidden]{display:none}.ap{padding:18px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px}#am{min-height:20px;font-size:14px}
+</style><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+</head>
 <body>
+<div class="auth" id="auth"><div class="card ap"><h1>Practice Trader</h1><p class="mute" style="margin:0">Sign in to save your progress and unlock achievements.</p><input id="em" type="email" placeholder="Email" autocomplete="email" aria-label="Email"><input id="pw" type="password" placeholder="Password (6 or more characters)" autocomplete="current-password" aria-label="Password"><div class="trade"><button class="b" id="in">Sign in</button><button class="b sell" id="up">Create account</button></div><button class="b sell" id="gg">Continue with Google</button><div id="am" class="down" role="status" aria-live="polite"></div></div></div>
 <div class="top"><h1>Practice Trader</h1><span class="lvl" id="lvl"></span></div>
 <div class="bar" aria-hidden="true"><i id="xp"></i></div>
 <div class="worth"><div class="mute">Net worth (practice money)</div><div class="big" id="worth"></div><div class="mute" id="sub"></div></div>
@@ -59,14 +62,15 @@ input{flex:1;min-width:0;font:inherit;padding:12px;border-radius:10px;border:1px
 <h2>Achievements</h2>
 <div class="badges" id="badges"></div>
 
-<p class="mute foot">Prices are simulated for practice. No real money is used.<br><button class="link" id="reset">Start over</button></p>
+<p class="mute foot">Prices are simulated for practice. No real money is used.<br><button class="link" id="reset">Start over</button> · <button class="link" id="out">Sign out</button></p>
 
 <script>
 var A=[{s:'SUN',n:'Sunrise Energy',p:48,v:.012},{s:'GRN',n:'Grain Co.',p:22,v:.01},{s:'BNK',n:'Harbor Bank',p:105,v:.008},{s:'TEC',n:'Pixel Tech',p:180,v:.018},{s:'GLD',n:'Gold Fund',p:64,v:.006},{s:'CRY',n:'Crypto Index',p:310,v:.03}];
-var H={},sel='SUN',S=load()||fresh();
+var FB={apiKey:"AIzaSyDiENCgw9e8ageAoqCDxBLANjtKDlUoHpg",authDomain:"practice-trader-8ec8d.firebaseapp.com",projectId:"practice-trader-8ec8d",appId:"1:823043534792:web:a70e46a5ce52b8480e5afd"};
+var KEY='pt1',H={},sel='SUN',S=fresh();
 function fresh(){return{cash:10000,h:{},t:0,w:0,k:0,xp:0,b:[]}}
-function load(){try{return JSON.parse(localStorage.getItem('pt1'))}catch(e){return null}}
-function save(){try{localStorage.setItem('pt1',JSON.stringify(S))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 A.forEach(function(a){a.p0=a.p;H[a.s]=[a.p]});
 function $(i){return document.getElementById(i)}
 function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
@@ -161,5 +165,19 @@ setInterval(function(){
  if(!document.activeElement||document.activeElement.id!=='qty')renderPanel(true);
 },2000);
 renderAll();
+function am(t){$('am').textContent=t}
+if(FB.apiKey.indexOf('PASTE')===0){am('Setup needed: add your Firebase keys to index.html.')}
+else{
+ firebase.initializeApp(FB);var au=firebase.auth();
+ au.onAuthStateChanged(function(u){
+  if(u){KEY='pt1_'+u.uid;S=load()||fresh();$('auth').hidden=true;renderAll();say('Welcome, '+(u.displayName||(u.email||'trader').split('@')[0])+'.')}
+  else{$('auth').hidden=false}
+ });
+ function fail(e){am(e.message.replace('Firebase: ',''))}
+ $('in').onclick=function(){am('');au.signInWithEmailAndPassword($('em').value.trim(),$('pw').value).catch(fail)};
+ $('up').onclick=function(){am('');au.createUserWithEmailAndPassword($('em').value.trim(),$('pw').value).catch(fail)};
+ $('gg').onclick=function(){am('');au.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(fail)};
+ $('out').onclick=function(){au.signOut()};
+}
 </script>
 </body></html>
