@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Practice Trader</title>
+<title>Harbisco Trader: Free Trading Practice App</title>
+<meta name="description" content="Harbisco Trader is a free trading practice game. Trade with fake money, earn XP, levels and achievements. No real money used.">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f2f5f1;--card:#fff;--ink:#14231e;--mute:#5d6f68;--line:#d9e1dc;--up:#177a4f;--down:#c0392b;--acc:#e0a526;--btn:#14231e;--btnt:#f2f5f1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -46,8 +47,8 @@ input{flex:1;min-width:0;font:inherit;padding:12px;border-radius:10px;border:1px
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 </head>
 <body>
-<div class="auth" id="auth"><div class="card ap"><h1>Practice Trader</h1><p class="mute" style="margin:0">Sign in to save your progress and unlock achievements.</p><input id="em" type="email" placeholder="Email" autocomplete="email" aria-label="Email"><input id="pw" type="password" placeholder="Password (6 or more characters)" autocomplete="current-password" aria-label="Password"><div class="trade"><button class="b" id="in">Sign in</button><button class="b sell" id="up">Create account</button></div><button class="b sell" id="gg">Continue with Google</button><div id="am" class="down" role="status" aria-live="polite"></div></div></div>
-<div class="top"><h1>Practice Trader</h1><span class="lvl" id="lvl"></span></div>
+<div class="auth" id="auth"><div class="card ap"><h1>Harbisco Trader</h1><p class="mute" style="margin:0">Sign in to save your progress and unlock achievements.</p><input id="em" type="email" placeholder="Email" autocomplete="email" aria-label="Email"><input id="pw" type="password" placeholder="Password (6 or more characters)" autocomplete="current-password" aria-label="Password"><div class="trade"><button class="b" id="in">Sign in</button><button class="b sell" id="up">Create account</button></div><button class="b sell" id="gg">Continue with Google</button><div id="am" class="down" role="status" aria-live="polite"></div></div></div>
+<div class="top"><h1>Harbisco Trader</h1><span class="lvl" id="lvl"></span></div>
 <div class="bar" aria-hidden="true"><i id="xp"></i></div>
 <div class="worth"><div class="mute">Net worth (practice money)</div><div class="big" id="worth"></div><div class="mute" id="sub"></div></div>
 
