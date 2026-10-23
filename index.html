@@ -1,0 +1,165 @@
+Here is the full code. Copy everything in the box and paste it into index.html in step 3.
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Practice Trader</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f1;--card:#fff;--ink:#14231e;--mute:#5d6f68;--line:#d9e1dc;--up:#177a4f;--down:#c0392b;--acc:#e0a526;--btn:#14231e;--btnt:#f2f5f1;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1815;--card:#16241f;--ink:#e8f0ec;--mute:#93a79f;--line:#27382f;--up:#4cc38a;--down:#ef7566;--acc:#f0b93a;--btn:#e8f0ec;--btnt:#0e1815;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1815;--card:#16241f;--ink:#e8f0ec;--mute:#93a79f;--line:#27382f;--up:#4cc38a;--down:#ef7566;--acc:#f0b93a;--btn:#e8f0ec;--btnt:#0e1815;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 "DM Sans",system-ui,sans-serif;padding:16px;max-width:560px;margin:0 auto}
+h1,h2,.big{font-family:"Bricolage Grotesque","DM Sans",sans-serif;margin:0}
+h1{font-size:22px;font-weight:800}
+h2{font-size:17px;font-weight:600;margin:22px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lvl{font-weight:700;color:var(--acc)}
+.worth{margin:14px 0 4px}
+.big{font-size:40px;font-weight:800;letter-spacing:-.02em}
+.mute{color:var(--mute);font-size:14px}
+.up{color:var(--up)}.down{color:var(--down)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:0;border-bottom:1px solid var(--line);background:none;color:inherit;width:100%;text-align:left;font:inherit;cursor:pointer}
+.row:last-child{border-bottom:0}
+.row[aria-pressed="true"]{background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.row:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.sym{font-weight:700}
+.panel{padding:14px;margin-top:10px}
+.panel svg{width:100%;height:70px;display:block;margin:8px 0}
+.trade{display:flex;gap:8px;margin-top:8px}
+input{flex:1;min-width:0;font:inherit;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.b{font:inherit;font-weight:700;padding:12px 18px;border-radius:10px;border:0;background:var(--btn);color:var(--btnt);cursor:pointer}
+.b.sell{background:none;color:var(--ink);border:1.5px solid var(--ink)}
+#msg{min-height:24px;margin-top:10px;font-weight:500}
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.badge{padding:10px 12px;border:1px dashed var(--line);border-radius:10px;color:var(--mute);font-size:14px}
+.badge.on{border:1px solid var(--acc);color:var(--ink);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.badge b{display:block}
+.empty{padding:14px;color:var(--mute)}
+.foot{margin-top:24px;text-align:center}
+.link{background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;cursor:pointer}
+</style></head>
+<body>
+<div class="top"><h1>Practice Trader</h1><span class="lvl" id="lvl"></span></div>
+<div class="bar" aria-hidden="true"><i id="xp"></i></div>
+<div class="worth"><div class="mute">Net worth (practice money)</div><div class="big" id="worth"></div><div class="mute" id="sub"></div></div>
+
+<h2>Market</h2>
+<div class="card" id="market"></div>
+<div class="card panel" id="panel"></div>
+<div id="msg" role="status" aria-live="polite"></div>
+
+<h2>Your holdings</h2>
+<div class="card" id="hold"></div>
+
+<h2>Achievements</h2>
+<div class="badges" id="badges"></div>
+
+<p class="mute foot">Prices are simulated for practice. No real money is used.<br><button class="link" id="reset">Start over</button></p>
+
+<script>
+var A=[{s:'SUN',n:'Sunrise Energy',p:48,v:.012},{s:'GRN',n:'Grain Co.',p:22,v:.01},{s:'BNK',n:'Harbor Bank',p:105,v:.008},{s:'TEC',n:'Pixel Tech',p:180,v:.018},{s:'GLD',n:'Gold Fund',p:64,v:.006},{s:'CRY',n:'Crypto Index',p:310,v:.03}];
+var H={},sel='SUN',S=load()||fresh();
+function fresh(){return{cash:10000,h:{},t:0,w:0,k:0,xp:0,b:[]}}
+function load(){try{return JSON.parse(localStorage.getItem('pt1'))}catch(e){return null}}
+function save(){try{localStorage.setItem('pt1',JSON.stringify(S))}catch(e){}}
+A.forEach(function(a){a.p0=a.p;H[a.s]=[a.p]});
+function $(i){return document.getElementById(i)}
+function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function asset(s){return A.filter(function(a){return a.s===s})[0]}
+function worth(){var w=S.cash;for(var s in S.h)w+=S.h[s].q*asset(s).p;return w}
+var BADGES=[
+ {id:'first',n:'First trade',d:'Make any trade',ok:function(){return S.t>=1}},
+ {id:'five',n:'Five trades',d:'Make 5 trades',ok:function(){return S.t>=5}},
+ {id:'profit',n:'First profit',d:'Sell for a gain',ok:function(){return S.w>=1}},
+ {id:'streak',n:'Hot streak',d:'3 winning sells in a row',ok:function(){return S.k>=3}},
+ {id:'spread',n:'Spread out',d:'Hold 3 different assets',ok:function(){return Object.keys(S.h).length>=3}},
+ {id:'grow',n:'Up $1,000',d:'Reach $11,000 net worth',ok:function(){return worth()>=11000}}
+];
+function checkBadges(){var got=[];BADGES.forEach(function(b){if(S.b.indexOf(b.id)<0&&b.ok()){S.b.push(b.id);S.xp+=50;got.push(b.n)}});return got}
+function say(t,c){var m=$('msg');m.textContent=t;m.className=c||''}
+function renderTop(){
+ var w=worth(),d=w-10000;
+ $('worth').textContent=money(w);
+ $('sub').textContent=money(S.cash)+' cash · '+(d>=0?'+':'−')+money(Math.abs(d))+' overall';
+ $('sub').className='mute '+(d>=0?'up':'down');
+ $('lvl').textContent='Level '+(Math.floor(S.xp/100)+1);
+ $('xp').style.width=(S.xp%100)+'%';
+}
+function renderMarket(){
+ $('market').innerHTML=A.map(function(a){
+  var ch=(a.p/a.p0-1)*100;
+  return '<button class="row" data-s="'+a.s+'" aria-pressed="'+(a.s===sel)+'"><span><span class="sym">'+a.s+'</span><br><span class="mute">'+a.n+'</span></span><span style="text-align:right"><b>'+money(a.p)+'</b><br><span class="'+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'−')+Math.abs(ch).toFixed(2)+'%</span></span></button>';
+ }).join('');
+}
+function spark(){
+ var h=H[sel],mn=Math.min.apply(null,h),mx=Math.max.apply(null,h),r=(mx-mn)||1;
+ var pts=h.map(function(v,i){return (i/Math.max(h.length-1,1)*300).toFixed(1)+','+(60-((v-mn)/r)*54).toFixed(1)}).join(' ');
+ var up=h[h.length-1]>=h[0];
+ return '<svg viewBox="0 0 300 64" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="'+(up?'var(--up)':'var(--down)')+'" stroke-width="2.5" stroke-linejoin="round" points="'+pts+'"/></svg>';
+}
+function renderPanel(keep){
+ var a=asset(sel),own=S.h[sel]?S.h[sel].q:0,q=keep?($('qty')?$('qty').value:'1'):'1';
+ $('panel').innerHTML='<div class="top"><b>'+a.n+' ('+a.s+')</b><b>'+money(a.p)+'</b></div>'+spark()+'<div class="mute">You own '+own+' · Cash '+money(S.cash)+'</div><div class="trade"><input id="qty" type="number" min="1" step="1" inputmode="numeric" value="'+q+'" aria-label="Quantity"><button class="b" id="buy">Buy</button><button class="b sell" id="sell">Sell</button></div>';
+}
+function renderHold(){
+ var k=Object.keys(S.h);
+ $('hold').innerHTML=k.length?k.map(function(s){
+  var p=S.h[s],a=asset(s),pl=(a.p-p.a)*p.q;
+  return '<div class="row" style="cursor:default"><span><span class="sym">'+s+'</span><br><span class="mute">'+p.q+' at '+money(p.a)+'</span></span><span class="'+(pl>=0?'up':'down')+'"><b>'+(pl>=0?'+':'−')+money(Math.abs(pl))+'</b></span></div>';
+ }).join(''):'<div class="empty">Nothing yet. Pick an asset above and tap Buy.</div>';
+}
+function renderBadges(){
+ $('badges').innerHTML=BADGES.map(function(b){var on=S.b.indexOf(b.id)>=0;return '<div class="badge'+(on?' on':'')+'"><b>'+b.n+'</b>'+b.d+'</div>'}).join('');
+}
+function renderAll(){renderTop();renderMarket();renderPanel(true);renderHold();renderBadges()}
+function qty(){var q=parseInt($('qty').value,10);return q>0?q:0}
+function after(txt,cls){
+ S.t++;S.xp+=10;
+ var g=checkBadges();save();renderAll();
+ say(g.length?txt+' Achievement unlocked: '+g.join(', ')+'.':txt,cls);
+}
+function buy(){
+ var q=qty(),a=asset(sel);
+ if(!q)return say('Enter a quantity of 1 or more.','down');
+ var c=q*a.p;
+ if(c>S.cash)return say('Not enough cash. You can afford '+Math.floor(S.cash/a.p)+' at this price.','down');
+ var p=S.h[sel]||{q:0,a:0};
+ p.a=(p.a*p.q+c)/(p.q+q);p.q+=q;S.h[sel]=p;S.cash-=c;
+ after('Bought '+q+' '+sel+' for '+money(c)+'.');
+}
+function sell(){
+ var q=qty(),a=asset(sel),p=S.h[sel];
+ if(!q)return say('Enter a quantity of 1 or more.','down');
+ if(!p||q>p.q)return say('You only own '+(p?p.q:0)+' '+sel+'.','down');
+ var pl=(a.p-p.a)*q;
+ S.cash+=q*a.p;p.q-=q;if(p.q===0)delete S.h[sel];
+ if(pl>0){S.w++;S.k++;S.xp+=25}else if(pl<0){S.k=0}
+ after('Sold '+q+' '+sel+'. '+(pl>=0?'Profit ':'Loss ')+money(Math.abs(pl))+'.',pl>=0?'up':'down');
+}
+document.addEventListener('click',function(e){
+ var r=e.target.closest('.row[data-s]');
+ if(r){sel=r.getAttribute('data-s');renderMarket();renderPanel(false);return}
+ if(e.target.id==='buy')buy();
+ if(e.target.id==='sell')sell();
+});
+var armed=false;
+$('reset').addEventListener('click',function(){
+ if(!armed){armed=true;this.textContent='Tap again to erase your progress';return}
+ armed=false;this.textContent='Start over';S=fresh();save();say('Fresh start with $10,000.');renderAll();
+});
+setInterval(function(){
+ A.forEach(function(a){
+  a.p=Math.max(1,a.p*(1+(Math.random()-.495)*2*a.v));
+  var h=H[a.s];h.push(a.p);if(h.length>40)h.shift();
+ });
+ renderTop();renderMarket();
+ if(!document.activeElement||document.activeElement.id!=='qty')renderPanel(true);
+},2000);
+renderAll();
+</script>
+</body></html>
